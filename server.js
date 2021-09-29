@@ -20,10 +20,23 @@ app.get("/", function (req, res) {
 });
 
 
-// your first API endpoint... 
-app.get("/api", function (req, res) {
-  const currentUTC = new Date().getTime();
-  res.json({"utc": currentUTC});
+// request to /api with an empty parameter
+app.get("/api/:date?", function (req, res) {
+  const date = new Date();
+  const reqDate = req.params.date;
+  if (reqDate) {
+    const isAUnixTimestamp = Number(reqDate);
+    console.log(isAUnixTimestamp);
+    if ((isNaN(isAUnixTimestamp) == false) && 
+       (isAUnixTimestamp >= -8.64e12 && isAUnixTimestamp <= 8.64e12)) {
+        date.setTime(isAUnixTimestamp);
+    } else if (isNaN(Date.parse(reqDate)) == true) {
+      return res.json({"error":"Invalid Date"});
+    } else {
+      date.setTime(Date.parse(reqDate));
+    };
+  };
+  res.json({"unix": date.getTime(), "utc": date.toUTCString()});
 });
 
 
